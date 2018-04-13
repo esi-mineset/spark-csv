@@ -38,7 +38,8 @@ spAppendScalaVersion := true
 spIncludeMaven := true
 
 publishTo := Some("Artifactory Realm" at "http://esi-components.esi-group.com/artifactory/snapshot")
-credentials += Credentials("Artifactory Realm", "esi-components.esi-group.com", "dwb", "AKCp5aTkx9TjdtzmWehNAmNgLLGLEWTujM6T9WDkKjN8UPK3VrMD3vHJfj4BJY2MuTbdZbiSq")
+credentials += Credentials(Path.userHome / ".m2" / ".credentials")
+//credentials += Credentials("Artifactory Realm", "esi-components.esi-group.com", "", "")
 
 pomExtra :=
   <url>https://github.com/esi-mineset/spark-csv</url>

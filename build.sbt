@@ -1,12 +1,12 @@
 name := "spark-csv"
 
-organization := "com.esi-mineset"
+organization := "org.apache.spark"
 
 crossScalaVersions := Seq("2.11.11", "2.10.6")
 
 scalaVersion := crossScalaVersions.value.head
 
-spName := "esi-mineset/spark-csv"
+spName := "apache/spark-csv"
 
 sparkVersion := "2.1.1"
 
@@ -36,6 +36,9 @@ publishMavenStyle := true
 spAppendScalaVersion := true
 
 spIncludeMaven := true
+
+publishTo := Some("Artifactory Realm" at "http://esi-components.esi-group.com/artifactory/snapshot")
+credentials += Credentials("Artifactory Realm", "esi-components.esi-group.com", "dwb", "AKCp5aTkx9TjdtzmWehNAmNgLLGLEWTujM6T9WDkKjN8UPK3VrMD3vHJfj4BJY2MuTbdZbiSq")
 
 pomExtra :=
   <url>https://github.com/esi-mineset/spark-csv</url>

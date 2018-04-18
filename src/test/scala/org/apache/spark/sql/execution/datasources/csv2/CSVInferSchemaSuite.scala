@@ -15,12 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.spark.sql.execution.datasources.csv
+package org.apache.spark.sql.execution.datasources.csv2
 
-import org.apache.spark.SparkFunSuite
+import scala.util.Random
+import com.holdenkarau.spark.testing.{ DataFrameSuiteBase, SharedSparkContext }
+import org.apache.spark.SparkException
+import org.apache.spark.sql._
+import org.apache.spark.sql.functions.udf
+import org.scalatest.FunSuite
+import org.scalactic.{ Equality, TolerantNumerics }
 import org.apache.spark.sql.types._
 
-class CSVInferSchemaSuite extends SparkFunSuite {
+class CSVInferSchemaSuite extends FunSuite with SharedSparkContext {
 
   test("String fields types are inferred correctly from null types") {
     val options = new CSVOptions(Map.empty[String, String])
@@ -81,13 +87,16 @@ class CSVInferSchemaSuite extends SparkFunSuite {
 
   test("Type arrays are merged to highest common type") {
     assert(
-      CSVInferSchema.mergeRowTypes(Array(StringType),
+      CSVInferSchema.mergeRowTypes(
+        Array(StringType),
         Array(DoubleType)).deep == Array(StringType).deep)
     assert(
-      CSVInferSchema.mergeRowTypes(Array(IntegerType),
+      CSVInferSchema.mergeRowTypes(
+        Array(IntegerType),
         Array(LongType)).deep == Array(LongType).deep)
     assert(
-      CSVInferSchema.mergeRowTypes(Array(DoubleType),
+      CSVInferSchema.mergeRowTypes(
+        Array(DoubleType),
         Array(LongType)).deep == Array(DoubleType).deep)
   }
 

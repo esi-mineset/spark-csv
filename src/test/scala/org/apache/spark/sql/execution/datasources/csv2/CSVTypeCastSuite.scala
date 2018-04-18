@@ -15,17 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.spark.sql.execution.datasources.csv
+package org.apache.spark.sql.execution.datasources.csv2
+
+import scala.util.Random
+import com.holdenkarau.spark.testing.{ DataFrameSuiteBase, SharedSparkContext }
+import org.apache.spark.SparkException
+import org.apache.spark.sql._
+import org.apache.spark.sql.functions.udf
+import org.scalatest.FunSuite
+import org.scalactic.{ Equality, TolerantNumerics }
 
 import java.math.BigDecimal
 import java.util.Locale
 
-import org.apache.spark.SparkFunSuite
 import org.apache.spark.sql.catalyst.util.DateTimeUtils
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 
-class CSVTypeCastSuite extends SparkFunSuite {
+class CSVTypeCastSuite extends FunSuite with SharedSparkContext {
 
   private def assertNull(v: Any) = assert(v == null)
 
@@ -34,10 +41,11 @@ class CSVTypeCastSuite extends SparkFunSuite {
     val decimalValues = Seq(10.05, 1000.01, 158058049.001)
     val decimalType = new DecimalType()
 
-    stringValues.zip(decimalValues).foreach { case (strVal, decimalVal) =>
-      val decimalValue = new BigDecimal(decimalVal.toString)
-      assert(CSVTypeCast.castTo(strVal, "_1", decimalType) ===
-        Decimal(decimalValue, decimalType.precision, decimalType.scale))
+    stringValues.zip(decimalValues).foreach {
+      case (strVal, decimalVal) =>
+        val decimalValue = new BigDecimal(decimalVal.toString)
+        assert(CSVTypeCast.castTo(strVal, "_1", decimalType) ===
+          Decimal(decimalValue, decimalType.precision, decimalType.scale))
     }
   }
 
@@ -52,14 +60,14 @@ class CSVTypeCastSuite extends SparkFunSuite {
   }
 
   test("Does not accept delimiter larger than one character") {
-    val exception = intercept[IllegalArgumentException]{
+    val exception = intercept[IllegalArgumentException] {
       CSVTypeCast.toChar("ab")
     }
     assert(exception.getMessage.contains("cannot be more than one character"))
   }
 
   test("Throws exception for unsupported escaped characters") {
-    val exception = intercept[IllegalArgumentException]{
+    val exception = intercept[IllegalArgumentException] {
       CSVTypeCast.toChar("""\1""")
     }
     assert(exception.getMessage.contains("Unsupported special character for delimiter"))
@@ -119,7 +127,7 @@ class CSVTypeCastSuite extends SparkFunSuite {
   }
 
   test("Throws exception for empty string with non null type") {
-    val exception = intercept[RuntimeException]{
+    val exception = intercept[RuntimeException] {
       CSVTypeCast.castTo("", "_1", IntegerType, nullable = false, CSVOptions())
     }
     assert(exception.getMessage.contains("null value found but field _1 is not nullable."))
@@ -150,7 +158,7 @@ class CSVTypeCastSuite extends SparkFunSuite {
 
     val timestamp = "2015-01-01 00:00:00"
     assert(CSVTypeCast.castTo(timestamp, "_1", TimestampType) ==
-      DateTimeUtils.stringToTime(timestamp).getTime  * 1000L)
+      DateTimeUtils.stringToTime(timestamp).getTime * 1000L)
     assert(CSVTypeCast.castTo("2015-01-01", "_1", DateType) ==
       DateTimeUtils.millisToDays(DateTimeUtils.stringToTime("2015-01-01").getTime))
   }
@@ -196,14 +204,12 @@ class CSVTypeCastSuite extends SparkFunSuite {
 
   test("Double infinite values can be parsed") {
     val doubleVal1 = CSVTypeCast.castTo(
-      "max", "_1", DoubleType, nullable = true, CSVOptions("negativeInf", "max")
-    ).asInstanceOf[Double]
+      "max", "_1", DoubleType, nullable = true, CSVOptions("negativeInf", "max")).asInstanceOf[Double]
 
     assert(doubleVal1 == Double.NegativeInfinity)
 
     val doubleVal2 = CSVTypeCast.castTo(
-      "max", "_1", DoubleType, nullable = true, CSVOptions("positiveInf", "max")
-    ).asInstanceOf[Double]
+      "max", "_1", DoubleType, nullable = true, CSVOptions("positiveInf", "max")).asInstanceOf[Double]
 
     assert(doubleVal2 == Double.PositiveInfinity)
   }

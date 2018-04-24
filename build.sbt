@@ -1,5 +1,5 @@
 name := "spark-csv"
-
+version := "1.0-SPARK-2.3.0-SNAPSHOT"
 organization := "org.apache.spark"
 
 crossScalaVersions := Seq("2.11.11", "2.10.6")
@@ -8,7 +8,7 @@ scalaVersion := crossScalaVersions.value.head
 
 spName := "apache/spark-csv"
 
-sparkVersion := "2.1.1"
+sparkVersion := "2.3.0"
 
 val testSparkVersion = settingKey[String]("The version of Spark to test against.")
 
@@ -24,8 +24,6 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-lang3" % "3.4" % "test",
   "com.holdenkarau" %% "spark-testing-base" % "2.2.0_0.8.0" % "test"
 )
-
-assemblyShadeRules in assembly := Seq(ShadeRule.rename("com.fasterxml.jackson.**" -> "shadeio.@1").inAll)
 
 fork in Test := true
 parallelExecution in Test := false

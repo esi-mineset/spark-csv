@@ -31,7 +31,7 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 import org.apache.spark.sql.catalyst.util.DateTimeUtils
-import org.apache.spark.sql.execution.datasources.{ OutputWriter, OutputWriterFactory, PartitionedFile }
+import org.apache.spark.sql.execution.datasources.{ OutputWriter, OutputWriterFactory, PartitionedFile, CodecStreams }
 import org.apache.spark.sql.execution.datasources.text.TextOutputWriter
 import org.apache.spark.sql.types._
 
@@ -179,7 +179,8 @@ private[csv2] class CSVOutputWriterFactory(params: CSVOptions) extends OutputWri
   }
 
   override def getFileExtension(context: TaskAttemptContext): String = {
-    ".csv" + TextOutputWriter.getCompressionExtension(context)
+    //    ".csv" + TextOutputWriter.getCompressionExtension(context)
+    ".csv" + CodecStreams.getCompressionExtension(context)
   }
 }
 
@@ -242,15 +243,17 @@ private[csv2] class CsvOutputWriter(
         row.get(ordinal, dt).toString
   }
 
-  override def write(row: Row): Unit = throw new UnsupportedOperationException("call writeInternal")
-
-  override protected[sql] def writeInternal(row: InternalRow): Unit = {
+  //  override def write(row: InternalRow): Unit = throw new UnsupportedOperationException("call writeInternal")
+  override def write(row: InternalRow): Unit = {
     csvWriter.writeRow(rowToString(row), records == 0L && params.headerFlag)
     records += 1
     if (records % FLUSH_BATCH_SIZE == 0) {
       flush()
     }
   }
+
+  //  override protected[sql] def writeInternal(row: InternalRow): Unit = {
+  //  }
 
   private def flush(): Unit = {
     val lines = csvWriter.flush()

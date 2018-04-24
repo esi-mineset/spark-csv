@@ -23,12 +23,13 @@ import java.util.Locale
 import org.apache.commons.lang3.time.FastDateFormat
 
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.catalyst.util.{ CaseInsensitiveMap, CompressionCodecs, ParseModes }
+import org.apache.spark.sql.catalyst.util.{ CaseInsensitiveMap, CompressionCodecs }
 
-private[csv2] class CSVOptions(@transient private val parameters: CaseInsensitiveMap)
+//private[csv2] class CSVOptions(@transient private val parameters: CaseInsensitiveMap[String])
+private[csv2] class CSVOptions(@transient private val parameters: Map[String, String])
   extends Logging with Serializable {
 
-  def this(parameters: Map[String, String]) = this(new CaseInsensitiveMap(parameters))
+  //def this(parameters: Map[String, String]) = this(new CaseInsensitiveMap(parameters))
 
   private def getChar(paramName: String, default: Char): Char = {
     val paramValue = parameters.get(paramName)
@@ -85,13 +86,13 @@ private[csv2] class CSVOptions(@transient private val parameters: CaseInsensitiv
   val ignoreTrailingWhiteSpaceFlag = getBool("ignoreTrailingWhiteSpace")
 
   // Parse mode flags
-  if (!ParseModes.isValidMode(parseMode)) {
-    logWarning(s"$parseMode is not a valid parse mode. Using ${ParseModes.DEFAULT}.")
-  }
+  //  if (!ParseModes.isValidMode(parseMode)) {
+  //    logWarning(s"$parseMode is not a valid parse mode. Using ${ParseModes.DEFAULT}.")
+  //  }
 
-  val failFast = ParseModes.isFailFastMode(parseMode)
-  val dropMalformed = ParseModes.isDropMalformedMode(parseMode)
-  val permissive = ParseModes.isPermissiveMode(parseMode)
+  val failFast = false; // ParseModes.isFailFastMode(parseMode)
+  val dropMalformed = false // ParseModes.isDropMalformedMode(parseMode)
+  val permissive = true // ParseModes.isPermissiveMode(parseMode)
 
   val nullValues = parameters.getOrElse("nullValue", "").split(',').toList
 
@@ -130,7 +131,8 @@ private[csv2] class CSVOptions(@transient private val parameters: CaseInsensitiv
 
 object CSVOptions {
 
-  def apply(): CSVOptions = new CSVOptions(new CaseInsensitiveMap(Map.empty))
+  //  def apply(): CSVOptions = new CSVOptions(new CaseInsensitiveMap(Map.empty))
+  def apply(): CSVOptions = new CSVOptions(Map[String, String]())
 
   def apply(paramName: String, paramValue: String): CSVOptions = {
     new CSVOptions(Map(paramName -> paramValue))
